@@ -331,38 +331,38 @@ def decode_batch(test_func, word_batch):
     return ret
 
 
-#class VizCallback(keras.callbacks.Callback):
-#
-#    def __init__(self, run_name, test_func, text_img_gen, num_display_words=6):
-#        self.test_func = test_func
-#        self.output_dir = os.path.join(
-#            OUTPUT_DIR, run_name)
-#        self.text_img_gen = text_img_gen
-#        self.num_display_words = num_display_words
-#        if not os.path.exists(self.output_dir):
-#            os.makedirs(self.output_dir)
-#
-#    def show_edit_distance(self, num):
-#        num_left = num
-#        mean_norm_ed = 0.0
-#        mean_ed = 0.0
-#        while num_left > 0:
-#            word_batch = next(self.text_img_gen)[0]
-#            num_proc = min(word_batch['the_input'].shape[0], num_left)
-#            decoded_res = decode_batch(self.test_func, word_batch['the_input'][0:num_proc])
-#            for j in range(num_proc):
-#                edit_dist = editdistance.eval(decoded_res[j], word_batch['source_str'][j])
-#                mean_ed += float(edit_dist)
-#                mean_norm_ed += float(edit_dist) / len(word_batch['source_str'][j])
-#            num_left -= num_proc
-#        mean_norm_ed = mean_norm_ed / num
-#        mean_ed = mean_ed / num
-#        print('\nOut of %d samples:  Mean edit distance: %.3f Mean normalized edit distance: %0.3f'
-#              % (num, mean_ed, mean_norm_ed))
-#
-#    def on_epoch_end(self, epoch, logs={}):
-#        self.model.save_weights(os.path.join(self.output_dir, 'weights%02d.h5' % (epoch)))
-#        self.show_edit_distance(256)
+class VizCallback(keras.callbacks.Callback):
+
+    def __init__(self, run_name, test_func, text_img_gen, num_display_words=6):
+        self.test_func = test_func
+        self.output_dir = os.path.join(
+            OUTPUT_DIR, run_name)
+        self.text_img_gen = text_img_gen
+        self.num_display_words = num_display_words
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+
+    def show_edit_distance(self, num):
+        num_left = num
+        mean_norm_ed = 0.0
+        mean_ed = 0.0
+        while num_left > 0:
+            word_batch = next(self.text_img_gen)[0]
+            num_proc = min(word_batch['the_input'].shape[0], num_left)
+            decoded_res = decode_batch(self.test_func, word_batch['the_input'][0:num_proc])
+            for j in range(num_proc):
+                edit_dist = editdistance.eval(decoded_res[j], word_batch['source_str'][j])
+                mean_ed += float(edit_dist)
+                mean_norm_ed += float(edit_dist) / len(word_batch['source_str'][j])
+            num_left -= num_proc
+        mean_norm_ed = mean_norm_ed / num
+        mean_ed = mean_ed / num
+        print('\nOut of %d samples:  Mean edit distance: %.3f Mean normalized edit distance: %0.3f'
+              % (num, mean_ed, mean_norm_ed))
+
+    def on_epoch_end(self, epoch, logs={}):
+        self.model.save_weights(os.path.join(self.output_dir, 'weights%02d.h5' % (epoch)))
+        self.show_edit_distance(256)
 #        word_batch = next(self.text_img_gen)[0]
 #        res = decode_batch(self.test_func, word_batch['the_input'][0:self.num_display_words])
 #        if word_batch['the_input'][0].shape[0] < 256:
@@ -465,14 +465,14 @@ def train(run_name, start_epoch, stop_epoch, img_w):
     # captures output of softmax so we can decode the output during visualization
     test_func = K.function([input_data], [y_pred])
 
-    #viz_cb = VizCallback(run_name, test_func, img_gen.next_val())
+    viz_cb = VizCallback(run_name, test_func, img_gen.next_val())
 
     model.fit_generator(generator=img_gen.next_train(),
                         steps_per_epoch=(words_per_epoch - val_words) // minibatch_size,
                         epochs=stop_epoch,
                         validation_data=img_gen.next_val(),
                         validation_steps=val_words // minibatch_size,
-                        callbacks=[img_gen],
+                        callbacks=[viz_cb, img_gen],
                         initial_epoch=start_epoch)
 
 
