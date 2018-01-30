@@ -32,6 +32,9 @@ pip install editdistance
 Created by Mike Henry
 https://github.com/mbhenry/
 '''
+
+# source: https://github.com/keras-team/keras/blob/master/examples/image_ocr.py
+
 import os
 import itertools
 import codecs
