@@ -175,6 +175,7 @@ class TextImageGenerator(keras.callbacks.Callback):
     # num_words can be independent of the epoch size due to the use of generators
     # as max_string_len grows, num_words can grow
     def build_word_list(self, num_words, max_string_len=None, mono_fraction=0.5):
+        print('build_word_list')
         assert max_string_len <= self.absolute_max_string_len
         assert num_words % self.minibatch_size == 0
         assert (self.val_split * num_words) % self.minibatch_size == 0
@@ -227,6 +228,7 @@ class TextImageGenerator(keras.callbacks.Callback):
     # size:  self.minibatch_size
     # train: True / False
     def get_batch(self, index, size, train):
+        print('get_batch index={}, size={}, train={}'.format(index,size,train))
         # width and height are backwards from typical Keras convention
         # because width is the time dimension when it gets fed into the RNN
         if K.image_data_format() == 'channels_first':
@@ -287,11 +289,13 @@ class TextImageGenerator(keras.callbacks.Callback):
             yield ret
 
     def on_train_begin(self, logs={}):
+        print('on_train_begin')
         self.build_word_list(16000, 4, 1)
         self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
                                                   rotate=False, ud=False, multi_fonts=False)
 
     def on_epoch_begin(self, epoch, logs={}):
+        print('on_epoch_begin epoch={}'.format(epoch))
         # rebind the paint function to implement curriculum learning
         if 3 <= epoch < 6:
             self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
@@ -467,13 +471,26 @@ def train(run_name, start_epoch, stop_epoch, img_w):
 
     viz_cb = VizCallback(run_name, test_func, img_gen.next_val())
 
+    print(
+        'fit_generator steps_per_epoch={}, epochs={}, validation_steps={}, initial_epoch={}'.format(
+            (words_per_epoch - val_words) // minibatch_size,
+            stop_epoch,
+            val_words // minibatch_size,
+            start_epoch
+        )
+    )
+    
+    verbose = 0
+
     model.fit_generator(generator=img_gen.next_train(),
                         steps_per_epoch=(words_per_epoch - val_words) // minibatch_size,
                         epochs=stop_epoch,
                         validation_data=img_gen.next_val(),
                         validation_steps=val_words // minibatch_size,
                         callbacks=[viz_cb, img_gen],
-                        initial_epoch=start_epoch)
+                        initial_epoch=start_epoch,
+                        verbose=verbose
+                        )
 
 
 if __name__ == '__main__':
