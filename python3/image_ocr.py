@@ -480,7 +480,7 @@ def train(run_name, start_epoch, stop_epoch, img_w):
         )
     )
     
-    verbose = 0
+    verbose = 2
 
     model.fit_generator(generator=img_gen.next_train(),
                         steps_per_epoch=(words_per_epoch - val_words) // minibatch_size,
