@@ -28,6 +28,7 @@ from keras.optimizers import SGD
 from keras.utils.data_utils import get_file
 from keras.preprocessing import image
 import keras.callbacks
+import json
 
 
 OUTPUT_DIR = 'image_ocr'
@@ -289,7 +290,7 @@ class TextImageGenerator(keras.callbacks.Callback):
             yield ret
 
     def on_train_begin(self, logs={}):
-        print('on_train_begin')
+        print('on_train_begin logs={}'.format(json.dumps(logs)))
         self.build_word_list(16000, 4, 1)
 #        self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
 #                                                  rotate=False, ud=False, multi_fonts=False)
@@ -368,6 +369,7 @@ class VizCallback(keras.callbacks.Callback):
               % (num, mean_ed, mean_norm_ed))
 
     def on_epoch_end(self, epoch, logs={}):
+        print('on_epoch_end epoch={}, logs={}'.format(epoch,json.dumps(logs)))
         self.model.save_weights(os.path.join(self.output_dir, 'weights%02d.h5' % (epoch)))
         self.show_edit_distance(256)
 #        word_batch = next(self.text_img_gen)[0]
