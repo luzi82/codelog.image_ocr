@@ -288,9 +288,9 @@ class TextImageGenerator(keras.callbacks.Callback):
                 self.cur_val_index = self.val_split + self.cur_val_index % 32
             yield ret
 
-#    def on_train_begin(self, logs={}):
-#        print('on_train_begin')
-#        self.build_word_list(16000, 4, 1)
+    def on_train_begin(self, logs={}):
+        print('on_train_begin')
+        self.build_word_list(16000, 4, 1)
 #        self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
 #                                                  rotate=False, ud=False, multi_fonts=False)
 #
