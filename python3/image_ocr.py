@@ -288,26 +288,29 @@ class TextImageGenerator(keras.callbacks.Callback):
                 self.cur_val_index = self.val_split + self.cur_val_index % 32
             yield ret
 
-    def on_train_begin(self, logs={}):
-        print('on_train_begin')
-        self.build_word_list(16000, 4, 1)
-        self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
-                                                  rotate=False, ud=False, multi_fonts=False)
+#    def on_train_begin(self, logs={}):
+#        print('on_train_begin')
+#        self.build_word_list(16000, 4, 1)
+#        self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
+#                                                  rotate=False, ud=False, multi_fonts=False)
+#
+#    def on_epoch_begin(self, epoch, logs={}):
+#        print('on_epoch_begin epoch={}'.format(epoch))
+#        # rebind the paint function to implement curriculum learning
+#        if 3 <= epoch < 6:
+#            self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
+#                                                      rotate=False, ud=True, multi_fonts=False)
+#        elif 6 <= epoch < 9:
+#            self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
+#                                                      rotate=False, ud=True, multi_fonts=True)
+#        elif epoch >= 9:
+#            self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
+#                                                      rotate=True, ud=True, multi_fonts=True)
+#        if epoch >= 21 and self.max_string_len < 12:
+#            self.build_word_list(32000, 12, 0.5)
 
-    def on_epoch_begin(self, epoch, logs={}):
-        print('on_epoch_begin epoch={}'.format(epoch))
-        # rebind the paint function to implement curriculum learning
-        if 3 <= epoch < 6:
-            self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
-                                                      rotate=False, ud=True, multi_fonts=False)
-        elif 6 <= epoch < 9:
-            self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
-                                                      rotate=False, ud=True, multi_fonts=True)
-        elif epoch >= 9:
-            self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
-                                                      rotate=True, ud=True, multi_fonts=True)
-        if epoch >= 21 and self.max_string_len < 12:
-            self.build_word_list(32000, 12, 0.5)
+    def paint_func(self, text):
+        return paint_text(text, self.img_w, self.img_h, rotate=False, ud=False, multi_fonts=False)
 
 
 # the actual loss calc occurs here despite it not being
@@ -496,5 +499,5 @@ def train(run_name, start_epoch, stop_epoch, img_w):
 if __name__ == '__main__':
     run_name = datetime.datetime.now().strftime('%Y:%m:%d:%H:%M:%S')
     train(run_name, 0, 20, 128)
-    # increase to wider images and start at epoch 20. The learned weights are reloaded
-    train(run_name, 20, 25, 512)
+    ## increase to wider images and start at epoch 20. The learned weights are reloaded
+    #train(run_name, 20, 25, 512)
