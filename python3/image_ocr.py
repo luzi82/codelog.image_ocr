@@ -102,28 +102,6 @@ def paint_text(text, w, h, rotate=False, ud=False, multi_fonts=False):
     return a
 
 
-def shuffle_mats_or_lists(matrix_list, stop_ind=None):
-    ret = []
-    assert all([len(i) == len(matrix_list[0]) for i in matrix_list])
-    len_val = len(matrix_list[0])
-    if stop_ind is None:
-        stop_ind = len_val
-    assert stop_ind <= len_val
-
-    a = list(range(stop_ind))
-    np.random.shuffle(a)
-    a += list(range(stop_ind, len_val))
-    for mat in matrix_list:
-        if isinstance(mat, np.ndarray):
-            ret.append(mat[a])
-        elif isinstance(mat, list):
-            ret.append([mat[i] for i in a])
-        else:
-            raise TypeError('`shuffle_mats_or_lists` only supports '
-                            'numpy.array and list objects.')
-    return ret
-
-
 # Translation of characters to unique integer values
 def text_to_labels(text):
     ret = []
