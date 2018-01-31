@@ -178,56 +178,6 @@ class TextImageGenerator(keras.callbacks.Callback):
     def get_output_size(self):
         return len(alphabet) + 1
 
-    # num_words can be independent of the epoch size due to the use of generators
-    # as max_string_len grows, num_words can grow
-#    def build_word_list(self, num_words, max_string_len=None, mono_fraction=0.5):
-#        print('build_word_list')
-#        assert max_string_len <= self.absolute_max_string_len
-#        assert num_words % self.minibatch_size == 0
-#        assert (self.val_split * num_words) % self.minibatch_size == 0
-#        self.num_words = num_words
-#        self.string_list = [''] * self.num_words
-#        tmp_string_list = []
-#        self.max_string_len = max_string_len
-#        self.Y_data = np.ones([self.num_words, self.absolute_max_string_len]) * -1
-#        self.X_text = []
-#        self.Y_len = [0] * self.num_words
-#
-#        # monogram file is sorted by frequency in english speech
-#        with codecs.open(self.monogram_file, mode='r', encoding='utf-8') as f:
-#            for line in f:
-#                if len(tmp_string_list) == int(self.num_words * mono_fraction):
-#                    break
-#                word = line.rstrip()
-#                if max_string_len == -1 or max_string_len is None or len(word) <= max_string_len:
-#                    tmp_string_list.append(word)
-#
-#        # bigram file contains common word pairings in english speech
-#        with codecs.open(self.bigram_file, mode='r', encoding='utf-8') as f:
-#            lines = f.readlines()
-#            for line in lines:
-#                if len(tmp_string_list) == self.num_words:
-#                    break
-#                columns = line.lower().split()
-#                word = columns[0] + ' ' + columns[1]
-#                if is_valid_str(word) and \
-#                        (max_string_len == -1 or max_string_len is None or len(word) <= max_string_len):
-#                    tmp_string_list.append(word)
-#        if len(tmp_string_list) != self.num_words:
-#            raise IOError('Could not pull enough words from supplied monogram and bigram files. ')
-#        # interlace to mix up the easy and hard words
-#        self.string_list[::2] = tmp_string_list[:self.num_words // 2]
-#        self.string_list[1::2] = tmp_string_list[self.num_words // 2:]
-#
-#        for i, word in enumerate(self.string_list):
-#            self.Y_len[i] = len(word)
-#            self.Y_data[i, 0:len(word)] = text_to_labels(word)
-#            self.X_text.append(word)
-#        self.Y_len = np.expand_dims(np.array(self.Y_len), 1)
-#
-#        self.cur_val_index = self.val_split
-#        self.cur_train_index = 0
-
     # each time an image is requested from train/val/test, a new random
     # painting of the text is performed
     # index: self.cur_train_index / self.cur_val_index
@@ -268,41 +218,12 @@ class TextImageGenerator(keras.callbacks.Callback):
     def next_train(self):
         while 1:
             ret = self.get_batch(0, self.minibatch_size, train=True)
-#            self.cur_train_index += self.minibatch_size
-#            if self.cur_train_index >= self.val_split:
-#                self.cur_train_index = self.cur_train_index % 32
-#                (self.X_text, self.Y_data, self.Y_len) = shuffle_mats_or_lists(
-#                    [self.X_text, self.Y_data, self.Y_len], self.val_split)
             yield ret
 
     def next_val(self):
         while 1:
             ret = self.get_batch(0, self.minibatch_size, train=False)
-#            self.cur_val_index += self.minibatch_size
-#            if self.cur_val_index >= self.num_words:
-#                self.cur_val_index = self.val_split + self.cur_val_index % 32
             yield ret
-
-#    def on_train_begin(self, logs={}):
-#        print('on_train_begin logs={}'.format(json.dumps(logs)))
-#        self.build_word_list(16000, 4, 1)
-#        self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
-#                                                  rotate=False, ud=False, multi_fonts=False)
-#
-#    def on_epoch_begin(self, epoch, logs={}):
-#        print('on_epoch_begin epoch={}'.format(epoch))
-#        # rebind the paint function to implement curriculum learning
-#        if 3 <= epoch < 6:
-#            self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
-#                                                      rotate=False, ud=True, multi_fonts=False)
-#        elif 6 <= epoch < 9:
-#            self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
-#                                                      rotate=False, ud=True, multi_fonts=True)
-#        elif epoch >= 9:
-#            self.paint_func = lambda text: paint_text(text, self.img_w, self.img_h,
-#                                                      rotate=True, ud=True, multi_fonts=True)
-#        if epoch >= 21 and self.max_string_len < 12:
-#            self.build_word_list(32000, 12, 0.5)
 
     def paint_func(self, text):
         return paint_text(text, self.img_w, self.img_h, rotate=False, ud=False, multi_fonts=False)
@@ -366,24 +287,6 @@ class VizCallback(keras.callbacks.Callback):
         print('on_epoch_end epoch={}, logs={}'.format(epoch,json.dumps(logs)))
         self.model.save_weights(os.path.join(self.output_dir, 'weights%02d.h5' % (epoch)))
         self.show_edit_distance(256)
-#        word_batch = next(self.text_img_gen)[0]
-#        res = decode_batch(self.test_func, word_batch['the_input'][0:self.num_display_words])
-#        if word_batch['the_input'][0].shape[0] < 256:
-#            cols = 2
-#        else:
-#            cols = 1
-#        for i in range(self.num_display_words):
-#            pylab.subplot(self.num_display_words // cols, cols, i + 1)
-#            if K.image_data_format() == 'channels_first':
-#                the_input = word_batch['the_input'][i, 0, :, :]
-#            else:
-#                the_input = word_batch['the_input'][i, :, :, 0]
-#            pylab.imshow(the_input.T, cmap='Greys_r')
-#            pylab.xlabel('Truth = \'%s\'\nDecoded = \'%s\'' % (word_batch['source_str'][i], res[i]))
-#        fig = pylab.gcf()
-#        fig.set_size_inches(10, 13)
-#        pylab.savefig(os.path.join(self.output_dir, 'e%02d.png' % (epoch)))
-#        pylab.close()
 
 
 def train(run_name, start_epoch, stop_epoch, img_w):
