@@ -79,15 +79,13 @@ def is_valid_str(in_str):
 
 class TextImageGenerator(keras.callbacks.Callback):
 
-    def __init__(self, monogram_file, bigram_file, minibatch_size,
+    def __init__(self, minibatch_size,
                  img_w, img_h, downsample_factor, val_split,
                  absolute_max_string_len=16):
 
         self.minibatch_size = minibatch_size
         self.img_w = img_w
         self.img_h = img_h
-        self.monogram_file = monogram_file
-        self.bigram_file = bigram_file
         self.downsample_factor = downsample_factor
         self.val_split = val_split
         self.blank_label = self.get_output_size() - 1
@@ -233,14 +231,13 @@ def train(run_name, start_epoch, stop_epoch, img_w):
     fdir = os.path.dirname(get_file('wordlists.tgz',
                                     origin='http://www.mythic-ai.com/datasets/wordlists.tgz', untar=True))
 
-    img_gen = TextImageGenerator(monogram_file=os.path.join(fdir, 'wordlist_mono_clean.txt'),
-                                 bigram_file=os.path.join(fdir, 'wordlist_bi_clean.txt'),
-                                 minibatch_size=minibatch_size,
-                                 img_w=img_w,
-                                 img_h=img_h,
-                                 downsample_factor=(pool_size ** 2),
-                                 val_split=words_per_epoch - val_words
-                                 )
+    img_gen = TextImageGenerator(
+        minibatch_size=minibatch_size,
+        img_w=img_w,
+        img_h=img_h,
+        downsample_factor=(pool_size ** 2),
+        val_split=words_per_epoch - val_words
+    )
     act = 'relu'
     input_data = Input(name='the_input', shape=input_shape, dtype='float32')
     inner = Conv2D(conv_filters, kernel_size, padding='same',
