@@ -291,6 +291,7 @@ def train(run_name, epochs, img_w):
 
     #viz_cb = VizCallback(run_name, test_func, img_gen.next_val())
     model_checkpoint = ModelCheckpoint(filepath=os.path.join(output_dir,'weight.{epoch:06d}.hdf5'))
+    csv_logger = CSVLogger(filepath=os.path.join(output_dir,'log.csv'))
 
     print(
         'fit_generator steps_per_epoch={}, epochs={}, validation_steps={}, initial_epoch={}'.format(
@@ -307,7 +308,7 @@ def train(run_name, epochs, img_w):
                         epochs=epochs,
                         validation_data=img_gen.next_val(),
                         validation_steps=val_words // minibatch_size,
-                        callbacks=[model_checkpoint, img_gen],
+                        callbacks=[model_checkpoint, img_gen, csv_logger],
                         verbose=verbose
                         )
 
