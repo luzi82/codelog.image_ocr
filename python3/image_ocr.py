@@ -30,7 +30,7 @@ import json
 import random
 import paint_text as _paint_text
 import time
-
+import c
 
 OUTPUT_DIR = 'image_ocr'
 
@@ -214,6 +214,8 @@ def train(run_name, start_epoch, stop_epoch, img_w):
     val_split = 0.2
     val_words = int(words_per_epoch * (val_split))
     output_dir = os.path.join(OUTPUT_DIR, run_name)
+    
+    c.reset_dir(output_dir)
 
     # Network parameters
     conv_filters = 16
