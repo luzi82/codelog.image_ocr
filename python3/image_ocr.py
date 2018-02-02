@@ -205,7 +205,7 @@ def decode_batch(test_func, word_batch):
 #        self.show_edit_distance(256)
 
 
-def train(run_name, start_epoch, stop_epoch, img_w):
+def train(run_name, epochs, img_w):
     # Input Parameters
     img_h = 64
     words_per_epoch = 16000
@@ -295,9 +295,8 @@ def train(run_name, start_epoch, stop_epoch, img_w):
     print(
         'fit_generator steps_per_epoch={}, epochs={}, validation_steps={}, initial_epoch={}'.format(
             (words_per_epoch - val_words) // minibatch_size,
-            stop_epoch,
-            val_words // minibatch_size,
-            start_epoch
+            epochs,
+            val_words // minibatch_size
         )
     )
     
@@ -305,15 +304,14 @@ def train(run_name, start_epoch, stop_epoch, img_w):
 
     model.fit_generator(generator=img_gen.next_train(),
                         steps_per_epoch=(words_per_epoch - val_words) // minibatch_size,
-                        epochs=stop_epoch,
+                        epochs=epochs,
                         validation_data=img_gen.next_val(),
                         validation_steps=val_words // minibatch_size,
                         callbacks=[model_checkpoint, img_gen],
-                        initial_epoch=start_epoch,
                         verbose=verbose
                         )
 
 
 if __name__ == '__main__':
     run_name = str(int(time.time()))
-    train(run_name, 0, 20, 128)
+    train(run_name, 20, 128)
