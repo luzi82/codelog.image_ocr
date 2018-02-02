@@ -291,7 +291,7 @@ def train(run_name, start_epoch, stop_epoch, img_w):
     test_func = K.function([input_data], [y_pred])
 
     #viz_cb = VizCallback(run_name, test_func, img_gen.next_val())
-    model_checkpoint = ModelCheckpoint(filepath=output_dir)
+    model_checkpoint = ModelCheckpoint(filepath=os.path.join(output_dir,'weight.{epoch:06d}.hdf5'))
 
     print(
         'fit_generator steps_per_epoch={}, epochs={}, validation_steps={}, initial_epoch={}'.format(
