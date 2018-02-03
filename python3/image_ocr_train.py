@@ -24,7 +24,7 @@ from keras.layers.recurrent import GRU
 from keras.optimizers import SGD
 from keras.utils.data_utils import get_file
 from keras.preprocessing import image
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, CSVLogger
 import keras.callbacks
 import json
 import random
@@ -253,10 +253,10 @@ def train(run_name, epochs, img_w):
 
     #viz_cb = VizCallback(run_name, test_func, img_gen.next_val())
     model_checkpoint = ModelCheckpoint(filepath=os.path.join(output_dir,'weight.{epoch:06d}.hdf5'))
-    csv_logger = CSVLogger(filepath=os.path.join(output_dir,'log.csv'))
+    csv_logger = CSVLogger(filename=os.path.join(output_dir,'log.csv'))
 
     print(
-        'fit_generator steps_per_epoch={}, epochs={}, validation_steps={}, initial_epoch={}'.format(
+        'fit_generator steps_per_epoch={}, epochs={}, validation_steps={}'.format(
             (words_per_epoch - val_words) // minibatch_size,
             epochs,
             val_words // minibatch_size
