@@ -32,7 +32,7 @@ import paint_text as _paint_text
 import time
 import c
 
-OUTPUT_DIR = 'image_ocr'
+OUTPUT_DIR = 'output'
 
 # character classes and matching regex filter
 regex = r'^[a-z ]+$'
