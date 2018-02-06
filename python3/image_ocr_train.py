@@ -77,7 +77,7 @@ def is_valid_str(in_str):
 # data. Image renderings are text are created on the fly
 # each time with random perturbations
 
-class TextImageGenerator(keras.callbacks.Callback):
+class TextImageGenerator():
 
     def __init__(self, minibatch_size,
                  img_w, img_h, downsample_factor, val_split,
@@ -262,7 +262,7 @@ def train(run_name, epochs, img_w):
                         epochs=epochs,
                         validation_data=img_gen.next_batch(),
                         validation_steps=val_words // minibatch_size,
-                        callbacks=[model_checkpoint, img_gen, csv_logger],
+                        callbacks=[model_checkpoint, csv_logger],
                         verbose=verbose
                         )
 
