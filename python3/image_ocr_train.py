@@ -98,8 +98,8 @@ class TextImageGenerator(keras.callbacks.Callback):
     # painting of the text is performed
     # size:  self.minibatch_size
     # train: True / False
-    def get_batch(self, size, train):
-        print('get_batch size={}, train={}'.format(size,train))
+    def get_batch(self, size):
+        # print('get_batch size={}, train={}'.format(size))
         # width and height are backwards from typical Keras convention
         # because width is the time dimension when it gets fed into the RNN
         if K.image_data_format() == 'channels_first':
@@ -132,7 +132,7 @@ class TextImageGenerator(keras.callbacks.Callback):
 
     def next_batch(self):
         while 1:
-            ret = self.get_batch(self.minibatch_size, train=True)
+            ret = self.get_batch(self.minibatch_size)
             yield ret
 
     def paint_func(self, text):
