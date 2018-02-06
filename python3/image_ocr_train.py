@@ -96,11 +96,10 @@ class TextImageGenerator(keras.callbacks.Callback):
 
     # each time an image is requested from train/val/test, a new random
     # painting of the text is performed
-    # index: self.cur_train_index / self.cur_val_index
     # size:  self.minibatch_size
     # train: True / False
-    def get_batch(self, index, size, train):
-        print('get_batch index={}, size={}, train={}'.format(index,size,train))
+    def get_batch(self, size, train):
+        print('get_batch size={}, train={}'.format(size,train))
         # width and height are backwards from typical Keras convention
         # because width is the time dimension when it gets fed into the RNN
         if K.image_data_format() == 'channels_first':
@@ -131,14 +130,9 @@ class TextImageGenerator(keras.callbacks.Callback):
         outputs = {'ctc': np.zeros([size])}  # dummy data for dummy loss function
         return (inputs, outputs)
 
-    def next_train(self):
+    def next_batch(self):
         while 1:
-            ret = self.get_batch(0, self.minibatch_size, train=True)
-            yield ret
-
-    def next_val(self):
-        while 1:
-            ret = self.get_batch(0, self.minibatch_size, train=False)
+            ret = self.get_batch(self.minibatch_size, train=True)
             yield ret
 
     def paint_func(self, text):
@@ -251,7 +245,6 @@ def train(run_name, epochs, img_w):
     # captures output of softmax so we can decode the output during visualization
     test_func = K.function([input_data], [y_pred])
 
-    #viz_cb = VizCallback(run_name, test_func, img_gen.next_val())
     model_checkpoint = ModelCheckpoint(filepath=os.path.join(output_dir,'weight.{epoch:06d}.hdf5'))
     csv_logger = CSVLogger(filename=os.path.join(output_dir,'log.csv'))
 
@@ -265,10 +258,10 @@ def train(run_name, epochs, img_w):
     
     verbose = 2
 
-    model.fit_generator(generator=img_gen.next_train(),
+    model.fit_generator(generator=img_gen.next_batch(),
                         steps_per_epoch=(words_per_epoch - val_words) // minibatch_size,
                         epochs=epochs,
-                        validation_data=img_gen.next_val(),
+                        validation_data=img_gen.next_batch(),
                         validation_steps=val_words // minibatch_size,
                         callbacks=[model_checkpoint, img_gen, csv_logger],
                         verbose=verbose
