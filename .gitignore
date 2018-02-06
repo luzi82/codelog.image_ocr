@@ -1,4 +1,5 @@
-__pycache__
 *.pyc
-.project
 .DS_Store
+.project
+/output/
+__pycache__
