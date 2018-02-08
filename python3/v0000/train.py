@@ -31,11 +31,12 @@ import random
 from . import paint_text as _paint_text
 import time
 import c
+import string
 
 OUTPUT_DIR = 'output'
 
 # character classes and matching regex filter
-alphabet = u'abcdefghijklmnopqrstuvwxyz '
+char_set = string.digits
 
 np.random.seed(55)
 
@@ -45,7 +46,7 @@ paint_text = _paint_text.paint_text
 def text_to_labels(text):
     ret = []
     for char in text:
-        ret.append(alphabet.find(char))
+        ret.append(char_set.find(char))
     return ret
 
 
@@ -53,10 +54,10 @@ def text_to_labels(text):
 def labels_to_text(labels):
     ret = []
     for c in labels:
-        if c == len(alphabet):  # CTC Blank
+        if c == len(char_set):  # CTC Blank
             ret.append("")
         else:
-            ret.append(alphabet[c])
+            ret.append(char_set[c])
     return "".join(ret)
 
 
@@ -84,7 +85,7 @@ class TextImageGenerator():
         self.absolute_max_string_len = absolute_max_string_len
 
     def get_output_size(self):
-        return len(alphabet) + 1
+        return len(char_set) + 1
 
     # each time an image is requested from train/val/test, a new random
     # painting of the text is performed
@@ -103,7 +104,7 @@ class TextImageGenerator():
         label_length = np.zeros([size, 1])
         source_str = []
         for i in range(size):
-            word = random_string(4,alphabet)
+            word = random_string(4,char_set)
             if K.image_data_format() == 'channels_first':
                 X_data[i, 0, 0:self.img_w, :] = self.paint_func(word)[0, :, :].T
             else:
