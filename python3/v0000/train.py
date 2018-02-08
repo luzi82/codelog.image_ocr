@@ -34,7 +34,7 @@ import c
 import string
 from . import model as my_model
 
-OUTPUT_DIR = 'output'
+OUTPUT_DIR = os.path.join('output',__package__)
 
 # character classes and matching regex filter
 char_set = string.digits
@@ -163,7 +163,8 @@ def train(run_name, epochs, img_w):
     words_per_epoch = 16000
     val_split = 0.2
     val_words = int(words_per_epoch * (val_split))
-    output_dir = os.path.join(OUTPUT_DIR, run_name)
+    #output_dir = os.path.join(OUTPUT_DIR, run_name)
+    output_dir = OUTPUT_DIR
     
     c.reset_dir(output_dir)
 
