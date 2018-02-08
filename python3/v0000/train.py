@@ -28,7 +28,7 @@ from keras.callbacks import ModelCheckpoint, CSVLogger
 import keras.callbacks
 import json
 import random
-import paint_text as _paint_text
+from . import paint_text as _paint_text
 import time
 import c
 
