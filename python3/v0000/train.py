@@ -35,7 +35,6 @@ import c
 OUTPUT_DIR = 'output'
 
 # character classes and matching regex filter
-regex = r'^[a-z ]+$'
 alphabet = u'abcdefghijklmnopqrstuvwxyz '
 
 np.random.seed(55)
@@ -64,13 +63,6 @@ def labels_to_text(labels):
 def random_string(max_size,char_list):
     size = random.randint(1,max_size)
     return ''.join(random.choice(char_list)for _ in range(size))
-
-# only a-z and space..probably not to difficult
-# to expand to uppercase and symbols
-
-def is_valid_str(in_str):
-    search = re.compile(regex, re.UNICODE).search
-    return bool(search(in_str))
 
 
 # Uses generator functions to supply train/test with
