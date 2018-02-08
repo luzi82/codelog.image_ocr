@@ -203,6 +203,7 @@ def train(run_name, epochs, img_w):
     test_func = K.function([input_data], [y_pred])
 
     model_checkpoint = ModelCheckpoint(filepath=os.path.join(output_dir,'weight.{epoch:06d}.hdf5'))
+    model_best = ModelCheckpoint(filepath=os.path.join(output_dir,'weight.best.hdf5'), save_best_only=True)
     csv_logger = CSVLogger(filename=os.path.join(output_dir,'log.csv'))
 
     print(
@@ -220,7 +221,7 @@ def train(run_name, epochs, img_w):
                         epochs=epochs,
                         validation_data=img_gen.next_batch(),
                         validation_steps=val_words // minibatch_size,
-                        callbacks=[model_checkpoint, csv_logger],
+                        callbacks=[model_checkpoint, csv_logger, model_best],
                         verbose=verbose
                         )
 
