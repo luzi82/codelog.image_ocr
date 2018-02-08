@@ -213,7 +213,7 @@ def train(run_name, epochs, img_w):
         )
     )
     
-    verbose = 2
+    verbose = 1
 
     model.fit_generator(generator=img_gen.next_batch(),
                         steps_per_epoch=(words_per_epoch - val_words) // minibatch_size,
@@ -227,4 +227,4 @@ def train(run_name, epochs, img_w):
 
 if __name__ == '__main__':
     run_name = str(int(time.time()))
-    train(run_name, 20, 128)
+    train(run_name, 100, 128)
