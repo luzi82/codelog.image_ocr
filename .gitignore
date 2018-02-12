@@ -3,3 +3,4 @@
 .project
 /output/
 __pycache__
+/env
