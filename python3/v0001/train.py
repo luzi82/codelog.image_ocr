@@ -172,9 +172,6 @@ def train(run_name, epochs, img_w):
     pool_size = my_model.pool_size
     minibatch_size = my_model.minibatch_size
 
-    fdir = os.path.dirname(get_file('wordlists.tgz',
-                                    origin='http://www.mythic-ai.com/datasets/wordlists.tgz', untar=True))
-
     img_gen = TextImageGenerator(
         minibatch_size=minibatch_size,
         img_w=img_w,
