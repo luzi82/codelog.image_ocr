@@ -1,0 +1,29 @@
+PROJECT_ID=$(gcloud config list project --format "value(core.project)")
+BUCKET_NAME=${PROJECT_ID}-main
+REGION=us-central1
+
+# run local
+
+OUTPUT=output
+rm -rf ${OUTPUT}
+
+gcloud ml-engine local train \
+    --module-name v0001.train \
+    --package-path python3/v0001/ \
+    -- \
+    --output $OUTPUT
+
+# run cloud
+
+JOB_NAME=codelog_image_ocr_v0001_`date +%Y%m%d%H%M%S`
+OUTPUT=gs://${BUCKET_NAME}/${JOB_NAME}
+
+gcloud ml-engine jobs submit training ${JOB_NAME} \
+    --job-dir ${OUTPUT} \
+    --runtime-version 1.4 \
+    --module-name v0001.train \
+    --package-path python3/v0001/ \
+    --config config.yaml \
+    --region ${REGION} \
+    -- \
+    --output ${OUTPUT}

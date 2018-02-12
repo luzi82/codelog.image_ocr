@@ -74,14 +74,13 @@ def random_string(max_size,char_list):
 class TextImageGenerator():
 
     def __init__(self, minibatch_size,
-                 img_w, img_h, downsample_factor, val_split,
+                 img_w, img_h, downsample_factor,
                  absolute_max_string_len=16):
 
         self.minibatch_size = minibatch_size
         self.img_w = img_w
         self.img_h = img_h
         self.downsample_factor = downsample_factor
-        self.val_split = val_split
         self.blank_label = self.get_output_size() - 1
         self.absolute_max_string_len = absolute_max_string_len
 
@@ -157,12 +156,9 @@ def decode_batch(test_func, word_batch):
     return ret
 
 
-def train(epochs, img_w, output, gs_output):
+def train(epochs, img_w, output, gs_output, steps_per_epoch, validation_steps):
     # Input Parameters
     img_h = 64
-    words_per_epoch = 16000
-    val_split = 0.2
-    val_words = int(words_per_epoch * (val_split))
     output_dir = output
     
     c.reset_dir(output_dir)
@@ -175,8 +171,7 @@ def train(epochs, img_w, output, gs_output):
         minibatch_size=minibatch_size,
         img_w=img_w,
         img_h=img_h,
-        downsample_factor=(pool_size ** 2),
-        val_split=words_per_epoch - val_words
+        downsample_factor=(pool_size ** 2)
     )
 
     input_data, y_pred = my_model.create_tensor_io(img_w, img_h, img_gen.get_output_size())
@@ -208,10 +203,10 @@ def train(epochs, img_w, output, gs_output):
         callbacks.append(g.Copy(os.path.join(output_dir,'log.csv'),                os.path.join(gs_output,'log.csv')))
 
     model.fit_generator(generator=img_gen.next_batch(),
-                        steps_per_epoch=(words_per_epoch - val_words) // minibatch_size,
+                        steps_per_epoch=steps_per_epoch,
                         epochs=epochs,
                         validation_data=img_gen.next_batch(),
-                        validation_steps=val_words // minibatch_size,
+                        validation_steps=validation_steps,
                         callbacks=callbacks,
                         verbose=2
                         )
@@ -223,6 +218,8 @@ if __name__ == '__main__':
     parser.add_argument('--output', required=True, type=str, help='output dir')
     parser.add_argument('--epochs', type=int, default=10, help='epochs')
     parser.add_argument('--img-w', type=int, default=128, help='img-w')
+    parser.add_argument('--steps_per_epoch', type=int, default=10, help='steps_per_epoch')
+    parser.add_argument('--validation_steps', type=int, default=10, help='validation_steps')
     
     parse_args = parser.parse_args()
 

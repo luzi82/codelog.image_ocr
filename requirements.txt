@@ -2,3 +2,4 @@ tensorflow
 keras
 cairocffi
 editdistance
+h5py
