@@ -2,6 +2,7 @@ import os
 import shutil
 import csv
 import json
+from tensorflow.python.lib.io import file_io
 
 PHI = (1+5**0.5)/2
 
@@ -71,3 +72,8 @@ def write_json(fn,j):
     with open(fn, 'w') as fout:
         json.dump(j, fp=fout, indent=2, sort_keys=True)
         fout.write('\n')
+
+def gcs_copy(src, dest):
+  with file_io.FileIO(src, mode='rb') as input_f:
+    with file_io.FileIO(dest, mode='w+b') as output_f:
+        output_f.write(input_f.read())
