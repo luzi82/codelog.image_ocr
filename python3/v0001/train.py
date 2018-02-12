@@ -33,8 +33,8 @@ import time
 import c
 import string
 from . import model as my_model
-
-OUTPUT_DIR = os.path.join('output',__package__)
+import argparse
+from . import g
 
 # character classes and matching regex filter
 char_set = string.digits
@@ -157,14 +157,13 @@ def decode_batch(test_func, word_batch):
     return ret
 
 
-def train(run_name, epochs, img_w):
+def train(epochs, img_w, output, gs_output):
     # Input Parameters
     img_h = 64
     words_per_epoch = 16000
     val_split = 0.2
     val_words = int(words_per_epoch * (val_split))
-    #output_dir = os.path.join(OUTPUT_DIR, run_name)
-    output_dir = OUTPUT_DIR
+    output_dir = output
     
     c.reset_dir(output_dir)
 
@@ -199,30 +198,40 @@ def train(run_name, epochs, img_w):
     # captures output of softmax so we can decode the output during visualization
     test_func = K.function([input_data], [y_pred])
 
-    model_checkpoint = ModelCheckpoint(filepath=os.path.join(output_dir,'weight.{epoch:06d}.hdf5'))
-    model_best = ModelCheckpoint(filepath=os.path.join(output_dir,'weight.best.hdf5'), save_best_only=True)
-    csv_logger = CSVLogger(filename=os.path.join(output_dir,'log.csv'))
-
-    print(
-        'fit_generator steps_per_epoch={}, epochs={}, validation_steps={}'.format(
-            (words_per_epoch - val_words) // minibatch_size,
-            epochs,
-            val_words // minibatch_size
-        )
-    )
-    
-    verbose = 1
+    callbacks = []
+    callbacks.append(ModelCheckpoint(filepath=os.path.join(output_dir,'weight.{epoch:06d}.hdf5')))
+    callbacks.append(ModelCheckpoint(filepath=os.path.join(output_dir,'weight.best.hdf5'), save_best_only=True))
+    callbacks.append(CSVLogger(filename=os.path.join(output_dir,'log.csv')))
+    if gs_output != None:
+        callbacks.append(g.Copy(os.path.join(output_dir,'weight.{epoch:06d}.hdf5'),os.path.join(gs_output,'weight.{epoch:06d}.hdf5')))
+        callbacks.append(g.Copy(os.path.join(output_dir,'weight.best.hdf5'),       os.path.join(gs_output,'weight.best.hdf5')))
+        callbacks.append(g.Copy(os.path.join(output_dir,'log.csv'),                os.path.join(gs_output,'log.csv')))
 
     model.fit_generator(generator=img_gen.next_batch(),
                         steps_per_epoch=(words_per_epoch - val_words) // minibatch_size,
                         epochs=epochs,
                         validation_data=img_gen.next_batch(),
                         validation_steps=val_words // minibatch_size,
-                        callbacks=[model_checkpoint, csv_logger, model_best],
-                        verbose=verbose
+                        callbacks=callbacks,
+                        verbose=2
                         )
 
 
 if __name__ == '__main__':
-    run_name = str(int(time.time()))
-    train(run_name, 100, 128)
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument('--output', required=True, type=str, help='output dir')
+    parser.add_argument('--epochs', type=int, default=10, help='epochs')
+    parser.add_argument('--img-w', type=int, default=128, help='img-w')
+    
+    parse_args = parser.parse_args()
+
+    arg_dict = dict(parse_args.__dict__)
+
+    if arg_dict['output'].startswith('gs://'):
+        arg_dict['gs_output']  = arg_dict['output']
+        arg_dict['output']     = 'gs'
+    else:
+        arg_dict['gs_output']  = None
+    
+    train(**arg_dict)
