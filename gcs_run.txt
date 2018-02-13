@@ -2,7 +2,7 @@ PROJECT_ID=$(gcloud config list project --format "value(core.project)")
 BUCKET_NAME=${PROJECT_ID}-main
 REGION=us-central1
 
-# run local
+# test run local
 
 OUTPUT=output
 rm -rf ${OUTPUT}
@@ -13,7 +13,7 @@ gcloud ml-engine local train \
     --job-dir $OUTPUT \
     --
 
-# run cloud
+# test run cloud
 
 JOB_NAME=codelog_image_ocr_v0001_`date +%Y%m%d%H%M%S`
 OUTPUT=gs://${BUCKET_NAME}/${JOB_NAME}
@@ -25,5 +25,25 @@ gcloud ml-engine jobs submit training ${JOB_NAME} \
     --package-path codelog_image_ocr \
     --region ${REGION} \
     --config config.yaml
+
+gcloud ml-engine jobs stream-logs ${JOB_NAME}
+
+# serious run cloud
+
+JOB_NAME=codelog_image_ocr_v0001_`date +%Y%m%d%H%M%S`
+OUTPUT=gs://${BUCKET_NAME}/${JOB_NAME}
+
+gcloud ml-engine jobs submit training ${JOB_NAME} \
+    --job-dir ${OUTPUT} \
+    --runtime-version 1.4 \
+    --module-name codelog_image_ocr.v0001.train \
+    --package-path codelog_image_ocr \
+    --region ${REGION} \
+    --config config.yaml \
+    --scale-tier BASIC_GPU \
+    -- \
+    --epochs 10 \
+    --steps_per_epoch 1000 \
+    --validation_steps 100
 
 gcloud ml-engine jobs stream-logs ${JOB_NAME}
