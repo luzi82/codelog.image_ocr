@@ -10,8 +10,8 @@ rm -rf ${OUTPUT}
 gcloud ml-engine local train \
     --module-name codelog_image_ocr.v0001.train \
     --package-path codelog_image_ocr \
-    -- \
-    --output $OUTPUT
+    --job-dir $OUTPUT \
+    --
 
 # run cloud
 
@@ -20,9 +20,10 @@ OUTPUT=gs://${BUCKET_NAME}/${JOB_NAME}
 
 gcloud ml-engine jobs submit training ${JOB_NAME} \
     --job-dir ${OUTPUT} \
+    --runtime-version 1.4 \
     --module-name codelog_image_ocr.v0001.train \
     --package-path codelog_image_ocr \
-    --config config.yaml \
     --region ${REGION} \
-    -- \
-    --output ${OUTPUT}
+    --config config.yaml
+
+gcloud ml-engine jobs stream-logs ${JOB_NAME}

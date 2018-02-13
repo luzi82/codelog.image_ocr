@@ -156,7 +156,7 @@ def decode_batch(test_func, word_batch):
     return ret
 
 
-def train(epochs, img_w, output, gs_output, steps_per_epoch, validation_steps):
+def train(epochs, img_w, output, gs_output, steps_per_epoch, validation_steps, **kwargs):
     # Input Parameters
     img_h = 64
     output_dir = output
@@ -215,7 +215,7 @@ def train(epochs, img_w, output, gs_output, steps_per_epoch, validation_steps):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--output', required=True, type=str, help='output dir')
+    parser.add_argument('--job-dir', required=True, type=str, help='output dir')
     parser.add_argument('--epochs', type=int, default=10, help='epochs')
     parser.add_argument('--img-w', type=int, default=128, help='img-w')
     parser.add_argument('--steps_per_epoch', type=int, default=10, help='steps_per_epoch')
@@ -224,11 +224,12 @@ if __name__ == '__main__':
     parse_args = parser.parse_args()
 
     arg_dict = dict(parse_args.__dict__)
-
-    if arg_dict['output'].startswith('gs://'):
-        arg_dict['gs_output']  = arg_dict['output']
+    
+    if arg_dict['job_dir'].startswith('gs://'):
+        arg_dict['gs_output']  = arg_dict['job_dir']
         arg_dict['output']     = 'gs'
     else:
         arg_dict['gs_output']  = None
+        arg_dict['output']     = arg_dict['job_dir']
     
     train(**arg_dict)
