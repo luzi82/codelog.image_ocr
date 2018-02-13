@@ -8,8 +8,8 @@ OUTPUT=output
 rm -rf ${OUTPUT}
 
 gcloud ml-engine local train \
-    --module-name v0001.train \
-    --package-path python3/v0001/ \
+    --module-name codelog_image_ocr.v0001.train \
+    --package-path codelog_image_ocr \
     -- \
     --output $OUTPUT
 
@@ -20,9 +20,8 @@ OUTPUT=gs://${BUCKET_NAME}/${JOB_NAME}
 
 gcloud ml-engine jobs submit training ${JOB_NAME} \
     --job-dir ${OUTPUT} \
-    --runtime-version 1.4 \
-    --module-name v0001.train \
-    --package-path python3/v0001/ \
+    --module-name codelog_image_ocr.v0001.train \
+    --package-path codelog_image_ocr \
     --config config.yaml \
     --region ${REGION} \
     -- \

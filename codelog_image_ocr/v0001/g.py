@@ -1,4 +1,5 @@
 import keras.callbacks
+from tensorflow.python.lib.io import file_io
 
 def copy(src, dest):
   with file_io.FileIO(src, mode='rb') as input_f:

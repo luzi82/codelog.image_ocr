@@ -30,7 +30,7 @@ import json
 import random
 from . import paint_text as _paint_text
 import time
-import c
+import codelog_image_ocr.c as c
 import string
 from . import model as my_model
 import argparse
