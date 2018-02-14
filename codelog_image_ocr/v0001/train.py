@@ -34,7 +34,7 @@ import codelog_image_ocr.c as c
 import string
 from . import model as my_model
 import argparse
-from . import g
+from codelog_image_ocr import g
 
 # character classes and matching regex filter
 char_set = string.digits
