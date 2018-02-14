@@ -156,7 +156,7 @@ def decode_batch(test_func, word_batch):
     return ret
 
 
-def train(epochs, img_w, output, gs_output, steps_per_epoch, validation_steps, **kwargs):
+def train(epochs, img_w, output, gs_output, steps_per_epoch, validation_steps, minibatch_size, **kwargs):
     # Input Parameters
     img_h = 64
     output_dir = output
@@ -165,7 +165,6 @@ def train(epochs, img_w, output, gs_output, steps_per_epoch, validation_steps, *
 
     # Network parameters
     pool_size = my_model.pool_size
-    minibatch_size = my_model.minibatch_size
 
     img_gen = TextImageGenerator(
         minibatch_size=minibatch_size,
@@ -220,6 +219,7 @@ if __name__ == '__main__':
     parser.add_argument('--img-w', type=int, default=128, help='img-w')
     parser.add_argument('--steps_per_epoch', type=int, default=10, help='steps_per_epoch')
     parser.add_argument('--validation_steps', type=int, default=10, help='validation_steps')
+    parser.add_argument('--minibatch_size', type=int, default=32, help='minibatch_size')
     
     parse_args = parser.parse_args()
 

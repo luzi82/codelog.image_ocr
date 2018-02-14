@@ -16,7 +16,6 @@ kernel_size = (3, 3)
 pool_size = 2
 time_dense_size = 32
 rnn_size = 512
-minibatch_size = 32
 
 def create_tensor_io(img_w, img_h, label_count):
     if K.image_data_format() == 'channels_first':
