@@ -214,7 +214,7 @@ def train(epochs, img_w, output, gs_output, steps_per_epoch, validation_steps, m
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--job-dir', required=True, type=str, help='output dir')
+    parser.add_argument('--job-dir', type=str, default='output', help='output dir')
     parser.add_argument('--epochs', type=int, default=10, help='epochs')
     parser.add_argument('--img-w', type=int, default=128, help='img-w')
     parser.add_argument('--steps_per_epoch', type=int, default=10, help='steps_per_epoch')
