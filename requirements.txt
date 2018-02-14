@@ -3,3 +3,4 @@ keras
 cairocffi
 editdistance
 h5py
+#google-cloud-storage
