@@ -8,12 +8,14 @@ except ImportError:
 
 _client = None
 def get_client():
-    if _client == None:
+    global _client
+    if _client is None:
         _client = storage.Client()
     return _client
 
 _bucket_dict = {}
 def get_bucket(name):
+    global _bucket_dict
     if name not in _bucket_dict:
         _bucket_dict[name] = get_client().get_bucket(name)
     return _bucket_dict[name]
@@ -29,7 +31,7 @@ def parse_url(url):
 def copy_from_local_to_bucket(src_path, dest_url):
     dest_bucket, dest_path = parse_url(dest_url)
     if dest_bucket is None:
-        raise Exception('ZWZYUBEQWW Invalid dest_path: {}'.format(dest_url)')
+        raise Exception('ZWZYUBEQWW Invalid dest_path: {}'.format(dest_url))
     blob = get_bucket(dest_bucket).blob(dest_path)
     blob.upload_from_filename(filename=src_path)
 

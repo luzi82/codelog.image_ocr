@@ -6,6 +6,7 @@ REQUIRED_PACKAGES = [
     'editdistance',
     'Keras',
     'h5py',
+    'google-cloud-storage',
 ]
 
 setup(
