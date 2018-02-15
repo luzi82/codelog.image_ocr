@@ -1,65 +1,30 @@
-import cairocffi as cairo
+from captcha.image import ImageCaptcha
 import numpy as np
 from scipy import ndimage
+import os
+
+FONT_LIST = [
+    os.path.join('resource_set','font_set','Roboto','Roboto-Regular.ttf'),
+]
+
+_image_captcha_dict = {}
+def get_image_captcha(w, h):
+    global FONT_LIST
+    key = (w,h)
+    if key not in _image_captcha_dict:
+        _image_captcha_dict[key] = ImageCaptcha(width=w, height=h, fonts=FONT_LIST)
+    return _image_captcha_dict[key]
 
 # paints the string in a random location the bounding box
 # also uses a random font, a slight random rotation,
 # and a random amount of speckle noise
 
-def paint_text(text, w, h, rotate=False, ud=False, multi_fonts=False):
-    surface = cairo.ImageSurface(cairo.FORMAT_RGB24, w, h)
-    with cairo.Context(surface) as context:
-        context.set_source_rgb(1, 1, 1)  # White
-        context.paint()
-        # this font list works in CentOS 7
-        if multi_fonts:
-            fonts = ['Century Schoolbook', 'Courier', 'STIX', 'URW Chancery L', 'FreeMono']
-            context.select_font_face(np.random.choice(fonts), cairo.FONT_SLANT_NORMAL,
-                                     np.random.choice([cairo.FONT_WEIGHT_BOLD, cairo.FONT_WEIGHT_NORMAL]))
-        else:
-            context.select_font_face('Courier', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
-        context.set_font_size(25)
-        box = context.text_extents(text)
-        border_w_h = (4, 4)
-        if box[2] > (w - 2 * border_w_h[1]) or box[3] > (h - 2 * border_w_h[0]):
-            raise IOError('Could not fit string into image. Max char count is too large for given image width.')
+def paint_text(text, w, h):
+    image_captcha = get_image_captcha(w,h)
+    img = image_captcha.generate_image(text)
+    img = np.expand_dims(img, 0)
 
-        # teach the RNN translational invariance by
-        # fitting text box randomly on canvas, with some room to rotate
-        max_shift_x = w - box[2] - border_w_h[0]
-        max_shift_y = h - box[3] - border_w_h[1]
-        top_left_x = np.random.randint(0, int(max_shift_x))
-        if ud:
-            top_left_y = np.random.randint(0, int(max_shift_y))
-        else:
-            top_left_y = h // 2
-        context.move_to(top_left_x - int(box[0]), top_left_y - int(box[1]))
-        context.set_source_rgb(0, 0, 0)
-        context.show_text(text)
-
-    buf = surface.get_data()
-    a = np.frombuffer(buf, np.uint8)
-    a.shape = (h, w, 4)
-    a = a[:, :, :3]
-    a = a.astype(np.float32) / 255
-    a = np.expand_dims(a, 0)
-    if rotate:
-        a = image.random_rotation(a, 3 * (w - top_left_x) / w + 1)
-    a = speckle(a)
-
-    return a
-
-# this creates larger "blotches" of noise which look
-# more realistic than just adding gaussian noise
-# assumes greyscale with pixels ranging from 0 to 1
-
-def speckle(img):
-    severity = np.random.uniform(0, 0.6)
-    blur = ndimage.gaussian_filter(np.random.randn(*img.shape) * severity, 1)
-    img_speck = (img + blur)
-    img_speck[img_speck > 1] = 1
-    img_speck[img_speck <= 0] = 0
-    return img_speck
+    return img
 
 if __name__ == '__main__':
     import pylab
