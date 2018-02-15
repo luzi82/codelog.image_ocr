@@ -74,12 +74,13 @@ def random_string(max_size,char_list):
 class TextImageGenerator():
 
     def __init__(self, minibatch_size,
-                 img_w, img_h, downsample_factor,
+                 img_w, img_h, channel_count, downsample_factor,
                  absolute_max_string_len=16):
 
         self.minibatch_size = minibatch_size
         self.img_w = img_w
         self.img_h = img_h
+        self.channel_count = channel_count
         self.downsample_factor = downsample_factor
         self.blank_label = self.get_output_size() - 1
         self.absolute_max_string_len = absolute_max_string_len
@@ -94,10 +95,7 @@ class TextImageGenerator():
         # print('get_batch size={}'.format(size))
         # width and height are backwards from typical Keras convention
         # because width is the time dimension when it gets fed into the RNN
-        if K.image_data_format() == 'channels_first':
-            X_data = np.ones([size, 1, self.img_w, self.img_h])
-        else:
-            X_data = np.ones([size, self.img_w, self.img_h, 1])
+        X_data = np.ones([size, self.img_w, self.img_h, self.channel_count])
 
         labels = np.ones([size, self.absolute_max_string_len])
         input_length = np.zeros([size, 1])
@@ -105,10 +103,7 @@ class TextImageGenerator():
         source_str = []
         for i in range(size):
             word = random_string(4,char_set)
-            if K.image_data_format() == 'channels_first':
-                X_data[i, 0, 0:self.img_w, :] = self.paint_func(word)[0, :, :].T
-            else:
-                X_data[i, 0:self.img_w, :, 0] = self.paint_func(word)[0, :, :].T
+            X_data[i, 0:self.img_w, :, :] = self.paint_func(word)[0, :, :, :].transpose((1,0,2))
             labels[i, 0:len(word)] = text_to_labels(word)
             input_length[i] = self.img_w // self.downsample_factor - 2
             label_length[i] = len(word)
@@ -170,10 +165,11 @@ def train(epochs, img_w, output, gs_output, steps_per_epoch, validation_steps, m
         minibatch_size=minibatch_size,
         img_w=img_w,
         img_h=img_h,
+        channel_count=3,
         downsample_factor=(pool_size ** 2)
     )
 
-    input_data, y_pred = my_model.create_tensor_io(img_w, img_h, img_gen.get_output_size())
+    input_data, y_pred = my_model.create_tensor_io(img_w, img_h, 3, img_gen.get_output_size())
 
     labels = Input(name='the_labels', shape=[img_gen.absolute_max_string_len], dtype='float32')
     input_length = Input(name='input_length', shape=[1], dtype='int64')
@@ -212,6 +208,8 @@ def train(epochs, img_w, output, gs_output, steps_per_epoch, validation_steps, m
 
 
 if __name__ == '__main__':
+    assert(K.image_data_format() != 'channels_first')
+
     parser = argparse.ArgumentParser()
     
     parser.add_argument('--job-dir', type=str, default='output', help='output dir')

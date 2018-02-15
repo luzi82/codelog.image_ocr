@@ -17,11 +17,8 @@ pool_size = 2
 time_dense_size = 32
 rnn_size = 512
 
-def create_tensor_io(img_w, img_h, label_count):
-    if K.image_data_format() == 'channels_first':
-        input_shape = (1, img_w, img_h)
-    else:
-        input_shape = (img_w, img_h, 1)
+def create_tensor_io(img_w, img_h, channel_count, label_count):
+    input_shape = (img_w, img_h, channel_count)
 
     act = 'relu'
     input_data = Input(name='the_input', shape=input_shape, dtype='float32')
@@ -57,7 +54,7 @@ def create_tensor_io(img_w, img_h, label_count):
     return input_data, y_pred
 
 if __name__ == '__main__':
-    input_data, y_pred = create_tensor_io(32, 160, 10)
+    input_data, y_pred = create_tensor_io(32, 160, 10, 3)
     model = Model(inputs=input_data, outputs=y_pred)
     model.summary()
     

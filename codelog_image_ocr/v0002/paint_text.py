@@ -40,7 +40,7 @@ def paint_text(text, w, h, rotate=False, ud=False, multi_fonts=False):
     buf = surface.get_data()
     a = np.frombuffer(buf, np.uint8)
     a.shape = (h, w, 4)
-    a = a[:, :, 0]  # grab single channel
+    a = a[:, :, :3]
     a = a.astype(np.float32) / 255
     a = np.expand_dims(a, 0)
     if rotate:
@@ -66,8 +66,8 @@ if __name__ == '__main__':
     X = paint_text('0123', 128, 60)
     print('shape={}'.format(X.shape))
     print('min={}, max={}'.format(X.min(),X.max()))
-    X = X.reshape((60,128))
+    X = X.reshape((60,128,3))
     print('shape={}'.format(X.shape))
     pylab.imshow(X)
-    pylab.colorbar()
+    #pylab.colorbar()
     pylab.show()
