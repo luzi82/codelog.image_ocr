@@ -6,6 +6,7 @@ REQUIRED_PACKAGES = [
     'editdistance',
     'Keras',
     'h5py',
+    'captcha',
     'google-cloud-storage',
 ]
 
