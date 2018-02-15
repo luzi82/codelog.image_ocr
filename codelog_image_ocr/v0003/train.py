@@ -123,7 +123,7 @@ class TextImageGenerator():
             yield ret
 
     def paint_func(self, text):
-        return paint_text(text, self.img_w, self.img_h, rotate=False, ud=False, multi_fonts=False)
+        return paint_text(text, self.img_w, self.img_h)
 
 
 # the actual loss calc occurs here despite it not being
