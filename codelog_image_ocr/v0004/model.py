@@ -44,10 +44,14 @@ def create_tensor_io(img_w, img_h, channel_count, label_count):
     gru1_merged = add([gru_1, gru_1b])
     gru_2 = GRU(rnn_size, return_sequences=True, kernel_initializer='he_normal', name='gru2')(gru1_merged)
     gru_2b = GRU(rnn_size, return_sequences=True, go_backwards=True, kernel_initializer='he_normal', name='gru2_b')(gru1_merged)
+    gru2_merged = add([gru_2, gru_2b])
+    gru_3 = GRU(rnn_size, return_sequences=True, kernel_initializer='he_normal', name='gru3')(gru2_merged)
+    gru_3b = GRU(rnn_size, return_sequences=True, go_backwards=True, kernel_initializer='he_normal', name='gru3_b')(gru2_merged)
+    gru3_merged = concatenate([gru_3, gru_3b])
 
     # transforms RNN output to character activations:
     inner = Dense(label_count, kernel_initializer='he_normal',
-                  name='dense2')(concatenate([gru_2, gru_2b]))
+                  name='dense2')(gru3_merged)
     y_pred = Activation('softmax', name='softmax')(inner)
     #Model(inputs=input_data, outputs=y_pred).summary()
 
