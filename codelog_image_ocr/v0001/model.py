@@ -57,7 +57,7 @@ def create_tensor_io(img_w, img_h, label_count):
     return input_data, y_pred
 
 if __name__ == '__main__':
-    input_data, y_pred = create_tensor_io(32, 160, 10)
+    input_data, y_pred = create_tensor_io(160, 32, 10)
     model = Model(inputs=input_data, outputs=y_pred)
     model.summary()
     
