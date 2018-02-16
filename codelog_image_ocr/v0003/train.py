@@ -213,9 +213,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
     parser.add_argument('--job-dir', type=str, default='output', help='output dir')
-    parser.add_argument('--epochs', type=int, default=10, help='epochs')
+    parser.add_argument('--epochs', type=int, default=100, help='epochs')
     parser.add_argument('--img-w', type=int, default=128, help='img-w')
-    parser.add_argument('--steps_per_epoch', type=int, default=10, help='steps_per_epoch')
+    parser.add_argument('--steps_per_epoch', type=int, default=100, help='steps_per_epoch')
     parser.add_argument('--validation_steps', type=int, default=10, help='validation_steps')
     parser.add_argument('--minibatch_size', type=int, default=32, help='minibatch_size')
     
